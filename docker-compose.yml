@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  # Telegram бот WeatherToday (polling режим, без публичных портов)
+  weather-today:
+    build:
+      context: ./telegram-bots/weather-today
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_WEATHER_BOT_TOKEN}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  # Пример API сервиса с публичным роутингом через Traefik
+  # example-api:
+  #   build:
+  #     context: ./api-services/example-api
+  #   environment:
+  #     PORT: 11500
+  #   expose:
+  #     - "11500"
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.example-api.rule=Host(`hub.pavbox.com`) && PathPrefix(`/example-api`)
+  #     - traefik.http.routers.example-api.entrypoints=websecure
+  #     - traefik.http.routers.example-api.tls.certresolver=le
+  #     - traefik.http.services.example-api.loadbalancer.server.port=11500
+  #     # Middleware для удаления /example-api из пути при проксировании
+  #     - traefik.http.middlewares.example-api-strip.stripprefix.prefixes=/example-api
+  #     - traefik.http.routers.example-api.middlewares=example-api-strip
+  #   restart: unless-stopped
+  #   networks:
+  #     - traefik
+  #     - internal
+
+networks:
+  traefik:
+    external: true
+  internal:
+    driver: bridge
